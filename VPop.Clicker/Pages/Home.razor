@@ -1,4 +1,6 @@
 ﻿@page "/"
+@page "/{Id}"
+
 @using VPop.Data
 @inject HttpClient Http
 
@@ -6,43 +8,31 @@
 
 <div class="bg-white shadow-md rounded-lg overflow-hidden max-w-md w-full">
     <div class="p-4 border-b border-gray-200">
-        <input @bind="characterName" placeholder="角色名稱" class="w-full p-2 border border-gray-300 rounded-md" />
+        <input @bind="characterName" placeholder="角色名稱" class="w-full p-2 border border-gray-300 rounded-md" disabled="@isReadOnly" />
     </div>
     <div class="flex flex-col items-center p-4">
         <img id="characterImage" src="@imageSource" alt="Character Image" class="w-32 h-32 object-cover rounded-full"
-             @onmousedown="OpenMouth" 
+             @onmousedown="OpenMouth"
              @onmouseup="CloseMouth"
              @ontouchstart="OpenMouth"
              @ontouchend="CloseMouth" />
     </div>
     <div class="p-4 border-t border-gray-200">
-        <textarea @bind="characterDescription" placeholder="簡介" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+        <textarea @bind="characterDescription" placeholder="簡介" class="w-full p-2 border border-gray-300 rounded-md" disabled="@isReadOnly"></textarea>
     </div>
     <div class="p-4 border-t border-gray-200">
-        <button @onclick="AddCharacter" class="w-full p-2 bg-blue-500 text-white rounded-md">Add Character</button>
+        <button @onclick="AddCharacter" class="w-full p-2 bg-blue-500 text-white rounded-md" disabled="@isReadOnly">Add Character</button>
     </div>
 </div>
 
 @code {
+    [Parameter]
+    public string Id { get; set; }
+
     private string characterName { get; set; }
     private string characterDescription { get; set; }
     private string imageSource { get; set; } = "images/kbmie_close.png";
-
-    /// <summary>
-    /// Switch to the open mouth image.
-    /// </summary>
-    private void OpenMouth()
-    {
-        imageSource = "images/kbmie_open.png";
-    }
-
-    /// <summary>
-    /// Switch to the close mouth image.
-    /// </summary>
-    private void CloseMouth()
-    {
-        imageSource = "images/kbmie_close.png";
-    }
+    private bool isReadOnly { get; set; }
 
     /// <summary>
     /// Add a new character by calling the API.
@@ -57,5 +47,35 @@
         };
 
         await Http.PostAsJsonAsync("character", character);
+    }
+
+    private string FormatImageSource(string characterName, string mouthState)
+    {
+        return $"images/{characterName.ToLower()}_{mouthState}.png";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Id))
+        {
+            var character = await Http.GetFromJsonAsync<Character>($"character/{Id}");
+            if (character != null)
+            {
+                characterName = character.Name;
+                characterDescription = character.Description;
+                imageSource = FormatImageSource(characterName, "close");
+                isReadOnly = true;
+            }
+        }
+    }
+
+    private void OpenMouth()
+    {
+        imageSource = FormatImageSource(characterName, "open");
+    }
+
+    private void CloseMouth()
+    {
+        imageSource = FormatImageSource(characterName, "close");
     }
 }
