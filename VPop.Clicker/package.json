@@ -3,6 +3,6 @@
     "tailwindcss": "^3.4.3"
   },
   "scripts": {
-    "build": "postcss wwwroot/css/main.css -o wwwroot/css/output.css"
+    "build": "npx tailwindcss -i wwwroot/css/main.css -o wwwroot/css/output.css"
   }
 }
