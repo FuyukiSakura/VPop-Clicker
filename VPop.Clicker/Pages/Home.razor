@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using VPop.Data
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
@@ -15,6 +17,9 @@
     </div>
     <div class="p-4 border-t border-gray-200">
         <textarea @bind="characterDescription" placeholder="簡介" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+    </div>
+    <div class="p-4 border-t border-gray-200">
+        <button @onclick="AddCharacter" class="w-full p-2 bg-blue-500 text-white rounded-md">Add Character</button>
     </div>
 </div>
 
@@ -37,5 +42,20 @@
     private void CloseMouth()
     {
         imageSource = "images/kbmie_close.png";
+    }
+
+    /// <summary>
+    /// Add a new character by calling the API.
+    /// </summary>
+    private async Task AddCharacter()
+    {
+        var character = new Character
+        {
+            Name = characterName,
+            Description = characterDescription,
+            Image = imageSource
+        };
+
+        await Http.PostAsJsonAsync("character", character);
     }
 }

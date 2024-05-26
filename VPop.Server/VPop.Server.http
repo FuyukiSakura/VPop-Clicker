@@ -1,0 +1,6 @@
+@VPop.Server_HostAddress = http://localhost:5230
+
+GET {{VPop.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
