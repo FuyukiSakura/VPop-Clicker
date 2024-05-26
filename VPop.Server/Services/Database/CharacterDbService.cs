@@ -67,5 +67,13 @@ namespace VPop.Server.Services.Database
 
             return results;
         }
+
+        /// <summary>
+        /// Updates a character in the database
+        /// </summary>
+        public async Task UpdateCharacterAsync(Character character)
+        {
+            await _container.UpsertItemAsync(character, new PartitionKey(character.Id));
+        }
     }
 }
